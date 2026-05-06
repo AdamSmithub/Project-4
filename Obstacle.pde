@@ -2,7 +2,8 @@ class Obstacle extends WorldObject
 {
   int PosX;
   int PosY;
-  boolean updated=0;
+  int RockCount=0;
+  boolean updated=false;
 
   Obstacle()
   {
@@ -18,33 +19,42 @@ class Obstacle extends WorldObject
 
 
   //TODO: Make updated reset for all rocks at end of reset
-    void update (ArrayList <ArrayList <Position>> Positions)
+  void update (WorldObject[][] positions)
+  {
+    RockCount++;
+    if (updated==false)
     {
-      RockCount++;
-      if(updated==0)
+
+      updated=true;
+      for (int i=-1; i<=1; i++)
       {
-        
-        updated=1;
-        for(int i=-1; i<=1; i++)
+        for (int j=-1; j<=1; j++)
         {
-          for (int j=-1; j<=1; j++)
+          if (positions[i][j] instanceof Obstacle)
           {
-            if(Positions.get(i).get(j).getSpaceType()="Obstacle")
-            {
-              Positions.get(i).get(j).update();
-            }
+             ((Obstacle)positions[i][j]).update(positions);
           }
         }
       }
-    
-          
-          
-      
-  
-  JSONObject json;
-  {
-  json=new JSONObject();
-  json.setInt("X position", PosX);
-  json.setInt("Y position", PosY);
+    }
   }
-}//TODO: FINISH SERIALIZE METHOD
+
+
+
+    void draw()
+    {
+      
+    }
+    JSONObject json;
+    {
+      json=new JSONObject();
+      json.setInt("X position", PosX);
+      json.setInt("Y position", PosY);
+    }
+    JSONObject serialize()
+    {
+      return json;
+      //TEMPORARY CODE FOR COMPILATION< MUST FIX
+    }
+    
+  }//TODO: FINISH SERIALIZE METHOD

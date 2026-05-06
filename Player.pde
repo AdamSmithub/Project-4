@@ -30,7 +30,9 @@ class Player extends Actor {
    *  Parameters: JSONObject object - A JSON serialization of the player
    * Description: Constructs a player from JSON save data
    */
-
+   public void draw()
+   {
+   }
   public Player(JSONObject object) {
     super(object);
     this.nextKey = '\0';

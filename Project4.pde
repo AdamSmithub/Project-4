@@ -8,10 +8,9 @@
  *        File: Project4.pde
  * Description: A dungeon crawler game
  */
-
 Scene scene;
 String fileName;
-
+PVector size;
 /**
  *      Method: setup()
  *  Parameters: void
@@ -23,19 +22,22 @@ String fileName;
 void setup() {
   fullScreen(P2D);
   pixelDensity(1);
+  size.x=7;
+  size.y=5;
   fileName = "data" + File.separator + "save.json";
+  Direction direction=Direction.SOUTH;
   File file = new File(fileName);
 
-  if (file.exists()) {
-    JSONObject data = loadJSONObject(fileName);
-    scene = new Scene(data);
-  } else {
-    scene = new Scene();
+    if (file.exists()) {
+      JSONObject data = loadJSONObject(fileName);
+      scene = new Scene(data);
+    } else {
+    scene = new Scene(direction, size);
     JSONObject data = scene.serialize();
     file.getParentFile().mkdirs();
     saveJSONObject(data, fileName);
   }
-}
+  }
 
 /**
  *      Method: draw()

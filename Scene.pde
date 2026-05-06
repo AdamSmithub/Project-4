@@ -10,9 +10,8 @@
  *              and all objects within those rooms,
  *              including the player and enemies
  */
-
+import java.util.ArrayList;
 import java.util.LinkedList;
-
 class Scene {
   private int roomWidth;
   private int roomHeight;
@@ -22,18 +21,36 @@ class Scene {
   private LinkedList<Actor> enemies;
   private HashMap<WorldObject, Position> positions;
   private HashMap<Direction, Position> doors;
-
-  /**
+  JSONObject serialize()
+  {
+     JSONObject data=new JSONObject();
+     data.setInt ("width", roomWidth);
+     data.setInt("height", roomHeight);
+     return data;
+  }
+  Scene(JSONObject data)
+  {
+    roomWidth=data.getInt("width");
+  }
+  Scene(Direction direction, PVector size)
+  {
+    entry=direction;
+    roomWidth=(int) size.x;
+    roomHeight=(int) size.y;
+  }  /**
    *      Method: private reset()
    *  Parameters: Direction entry - The direction from which
    *                                the player entered the room
    *      Return: void
    * Description: Resets the room to a random state
    */
-
-  private void reset(Direction entry) {
+ArrayList <ArrayList <Position>> spaces;
+  private void reset(Direction entry, PVector size) {
+    
+    room=new WorldObject[(int) size.x][(int) size.y];
     if (entry == null) {
       return;
+      
     }
 
     //----------------------------\\
@@ -70,7 +87,7 @@ class Scene {
       Direction[] directions = Direction.values();
       Direction direction = directions[int(random(directions.length))];
       this.player = new Player(direction);
-      this.reset(direction);
+      this.reset(direction, size);
     }
 
     // Get the player's action
@@ -109,7 +126,7 @@ class Scene {
           Direction[] directions = Direction.values();
           Direction direction = directions[int(random(directions.length))];
           this.player = new Player(direction);
-          this.reset(direction);
+          this.reset(direction, size); 
           return true;
         }
 
@@ -150,7 +167,7 @@ class Scene {
       Position door = this.doors.get(action.direction);
 
       if (door != null && door.equals(position)) {
-        this.reset(action.direction);
+        this.reset(action.direction, size);
         return true;
       }
     }
