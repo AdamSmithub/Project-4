@@ -8,6 +8,9 @@
  *        File: Player.pde
  * Description: A user-controlled player actor
  */
+ 
+ int posX;
+ int posY;
 
 class Player extends Actor {
   private char nextKey;
@@ -141,5 +144,9 @@ class Player extends Actor {
     if (debounce.getOrDefault(released, false)) {
       debounce.put(released, false);
     }
+  }
+  
+  void draw() {
+      ellipse(posX, posY, 25, 25);
   }
 }

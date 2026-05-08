@@ -1,3 +1,4 @@
+/**
 class Obstacle extends WorldObject
 {
   int PosX;
@@ -48,3 +49,5 @@ class Obstacle extends WorldObject
   json.setInt("Y position", PosY);
   }
 }//TODO: FINISH SERIALIZE METHOD
+}
+*/

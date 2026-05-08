@@ -22,7 +22,17 @@ class Scene {
   private LinkedList<Actor> enemies;
   private HashMap<WorldObject, Position> positions;
   private HashMap<Direction, Position> doors;
-
+  
+  public Scene() {
+    roomWidth = 7;
+    roomHeight = 5;
+  }
+  
+  public Scene(JSONObject data) {
+    roomWidth = data.getInt("roomWidth");
+    roomHeight = data.getInt("roomHeight");
+  }
+  
   /**
    *      Method: private reset()
    *  Parameters: Direction entry - The direction from which
@@ -297,11 +307,30 @@ class Scene {
    */
 
   public void draw() {
+
     // Determine the floor size
     float size = min((float)width / (this.roomWidth + 2), (float)height / (this.roomHeight + 2));
 
     //----------------------------\\
     // TODO: COMPLETE THIS METHOD \\
     //----------------------------\\
+    
+    //drawing the grid
+    pushStyle();
+    color(255);
+    for(int i = 0; i < 7; i++) {
+       line((width/7)*i, 0, (width/7)*i, height);
+    }
+     for(int i = 0; i < 5; i++) {
+       line(0, (height/5)*i, width, (height/5)*i);
+    }
+    popStyle();
+  }
+  
+  public JSONObject serialize() {
+    JSONObject data = new JSONObject();
+    data.setInt("roomWidth", roomWidth);
+    data.setInt("roomHeight", roomHeight);
+    return data;
   }
 }
