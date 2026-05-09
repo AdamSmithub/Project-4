@@ -1,5 +1,5 @@
 /**TODO:DEFAULT CONSTRUCTOR, JSONOBJECT CONSTRUCTOR, SERIALIZE, RESET METHOD(GENERATES NEW ROOMS), DRAW METHOD
- *      Author: Prof. Morales, Adam Smith
+ *      Author: Prof. Morales
  *      Course: CPSC 220
  *  Instructor: Prof. Morales
  *     Created: 2026-04-15
@@ -10,8 +10,9 @@
  *              and all objects within those rooms,
  *              including the player and enemies
  */
-import java.util.ArrayList;
+
 import java.util.LinkedList;
+
 class Scene {
   private int roomWidth;
   private int roomHeight;
@@ -21,55 +22,45 @@ class Scene {
   private LinkedList<Actor> enemies;
   private HashMap<WorldObject, Position> positions;
   private HashMap<Direction, Position> doors;
-  Scene(JSONObject data)
-  {
-    roomWidth=data.getInt("width");
+
+  public float[] positionX = {width/14, width/14*3, width/14*5, width/14*7, width/14*9, width/14*11, width/14*13};
+  public float[] positionY = {height/10, height/10*3, height/10*5, height/10*7, height/10*9};
+
+
+
+  public Scene() {
+    roomWidth = 7;
+    roomHeight = 5;
+    room = new WorldObject[7][5];    //7 left-right, 5 top-bottom
+    player = new Player(entry);
+    Obstacle o = new Obstacle();
+    room[3][2] = player;
+    room[3][4] = o;
+    room[6][2] = o;
   }
-  Scene(Direction direction, PVector size)
-  {
-    entry=direction;
-    roomWidth=(int) size.x;
-    roomHeight=(int) size.y;
-  }  /**
+
+  public Scene(JSONObject data) {
+    roomWidth = data.getInt("roomWidth");
+    roomHeight = data.getInt("roomHeight");
+    
+    room = new WorldObject[7][5];    //7 left-right, 5 top-bottom
+    player = new Player(entry);
+    Obstacle o = new Obstacle();
+    room[3][2] = player;
+    room[3][1] = o;
+  }
+
+  /**
    *      Method: private reset()
    *  Parameters: Direction entry - The direction from which
    *                                the player entered the room
    *      Return: void
    * Description: Resets the room to a random state
    */
-/**
-CAUSES NULL POINTER UNTIL ROOM GENERATION IMPLEMENTED. DO NOT DELETE
-JSONObject serialize()
-  {
-     JSONObject data=new JSONObject();
-     data.setInt ("width", roomWidth);
-     data.setInt("height", roomHeight);
-     for(int i=0; i<roomHeight; i++)
-     {
-       for(int j=0; j<roomWidth; j++)
-       {
-           String name;
-           name="object ["+j+"]["+i+"]";
-           data.setJSONObject(name, ((Obstacle) room[j][i]).serialize());
-       }        
-     }
-     
-     return data;
-  }
-  */
-  //dummy serialize while real function  incomplete
-  JSONObject serialize()
-  {
-     JSONObject data=new JSONObject();
-     return data;
-  }
-ArrayList <ArrayList <Position>> spaces;
-  private void reset(Direction entry, PVector size) {
-    
-    room=new WorldObject[(int) size.x][(int) size.y];
+
+  private void reset(Direction entry) {
     if (entry == null) {
       return;
-      
     }
 
     //----------------------------\\
@@ -86,7 +77,7 @@ ArrayList <ArrayList <Position>> spaces;
    */
 
   private void updateActions(Actor actor) {
-    for (Action action: Action.values()) {
+    for (Action action : Action.values()) {
       actor.setActionValidity(action, this.isActionValid(actor, action));
     }
   }
@@ -106,7 +97,7 @@ ArrayList <ArrayList <Position>> spaces;
       Direction[] directions = Direction.values();
       Direction direction = directions[int(random(directions.length))];
       this.player = new Player(direction);
-      this.reset(direction, size);
+      this.reset(direction);
     }
 
     // Get the player's action
@@ -145,7 +136,7 @@ ArrayList <ArrayList <Position>> spaces;
           Direction[] directions = Direction.values();
           Direction direction = directions[int(random(directions.length))];
           this.player = new Player(direction);
-          this.reset(direction, size); 
+          this.reset(direction);
           return true;
         }
 
@@ -186,7 +177,7 @@ ArrayList <ArrayList <Position>> spaces;
       Position door = this.doors.get(action.direction);
 
       if (door != null && door.equals(position)) {
-        this.reset(action.direction, size);
+        this.reset(action.direction);
         return true;
       }
     }
@@ -310,6 +301,67 @@ ArrayList <ArrayList <Position>> spaces;
     if (this.player != null) {
       this.player.keyPressed();
     }
+    
+    //the above is what was already there. below is what I (Robby) added.
+    for (int i = 0; i < roomWidth - 1; i++) {
+      for (int j = 0; j < roomHeight - 1; j++) {
+        if (room[i][j] instanceof Player) {
+          switch(key) {
+            case 'w':  //moves up
+              if (j == 0) { //if already at the border can't move
+                continue;
+              } else if(room[i][j-1] instanceof Obstacle) {
+                continue;
+              } else 
+                room[i][j-1] = player;
+                room[i][j] = null;
+
+                break;
+            
+            case 'a':  //moves down
+              if (i == 0) {
+                continue;
+              } else if(room[i-1][j] instanceof Obstacle) {
+                continue;
+              } else {
+                room[i-1][j] = player;
+                room[i][j] = null;
+              } break;
+            
+            
+            //these are broken for some reason. they instantly snap the player as far right or down as possible. they still stop at obstacles though.
+            case 's':  //moves down
+              if (i == 4) {
+                break;
+              } else if(room[i][j+1] instanceof Obstacle) { //bandaid fix could just be adding offscreen obstacles.
+                break;
+              } else {
+                room[i][j + 1] = player;
+                room[i][j] = null;
+            } break;
+            
+            case 'd':  //moves right
+              if (j == 6) {
+                break;
+              } else if(room[i+1][j] instanceof Obstacle) {
+                break;
+              } else {
+                room[i + 1][j] = player;
+                room[i][j] = null;
+            } break;
+            
+            
+            case 't':          //debug that prints the current X position
+              print(i);
+              break;
+              
+            case 'y':          //debug that prints the current Y position
+              print(j);
+              break;
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -333,11 +385,50 @@ ArrayList <ArrayList <Position>> spaces;
    */
 
   public void draw() {
+
     // Determine the floor size
     float size = min((float)width / (this.roomWidth + 2), (float)height / (this.roomHeight + 2));
 
     //----------------------------\\
     // TODO: COMPLETE THIS METHOD \\
     //----------------------------\\
+
+    //drawing the grid
+    pushStyle();
+    stroke(255);
+    for (int i = 0; i < 7; i++) {
+      line((width/7)*i, 0, (width/7)*i, height);
+    }
+    for (int i = 0; i < 5; i++) {
+      line(0, (height/5)*i, width, (height/5)*i);
+    }
+    popStyle();
+
+    
+    //draws everything in the room at its correct position
+    for (int i = 0; i < roomWidth; i++) {
+      for (int j = 0; j < roomHeight; j++) {
+        if(room[i][j] != null){
+          pushMatrix();
+          translate(positionX[i], positionY[j]);
+          room[i][j].draw();
+          popMatrix();
+
+
+            if(room[i][j] instanceof Player) {
+              //println(i + " " + j);
+            }
+        }
+      }
+    }
+  }
+
+  public JSONObject serialize() {
+    JSONObject data = new JSONObject();
+    data.setInt("roomWidth", roomWidth);
+    data.setInt("roomHeight", roomHeight);
+
+
+    return data;
   }
 }
