@@ -22,43 +22,39 @@ class Scene {
   private HashMap<WorldObject, Position> positions;
   private HashMap<Direction, Position> doors;
   Player player=new Player(Direction.NORTH);
-  Grid g;
-  Obstacle o;
-
   public Scene() {
-    /*
-    nDoorPos = new Position(0, 3, this);
-    doors.put(Direction.NORTH, nDoorPos);
-    */
-    o = new Obstacle();
+    
+    positions=new HashMap<WorldObject, Position>();
+    doors=new HashMap<Direction, Position>();
     enemies=new LinkedList<Enemy>();
     roomWidth = 7;
     roomHeight = 5;
-    g = new Grid(roomWidth, roomHeight);
     room=new WorldObject[roomWidth][roomHeight];
     reset(Direction.NORTH);
     room[6][0]=player;
-    enemies.add(new Enemy(Direction.NORTH, room, new Position(6, 2, this)));
-    room[6][2]=enemies.get(0);
-    room[3][4] = o;
+    positions.put(player, new Position(6,0,this));
+    Enemy enemy = new Enemy(Direction.NORTH, room);
+    enemies.add(enemy);
+    room[6][2] = enemy;
+    positions.put(enemy, new Position(6,2,this));
   }
-
+  
   public Scene(JSONObject data) {
-    roomWidth=data.getInt ("width");
-    roomHeight=data.getInt("height");
-    for (int i=0; i<roomHeight; i++)
-    {
-      for (int j=0; j<roomWidth; j++)
-      {
-        String name;
-        name="object ["+j+"]["+i+"]";
-        //cant figure out how to unserialize
-        //room[j][i]=new WorldObject(data.getJSONObject(name));
-      }
-    }
+     roomWidth=data.getInt ("width");
+     roomHeight=data.getInt("height");
+     for(int i=0; i<roomHeight; i++)
+     {
+       for(int j=0; j<roomWidth; j++)
+       {
+           String name;
+           name="object ["+j+"]["+i+"]";
+          //cant figure out how to unserialize
+          //room[j][i]=new WorldObject(data.getJSONObject(name));
+       }        
+     }
   }
 
-
+  
   /**
    *      Method: private reset()
    *  Parameters: Direction entry - The direction from which
@@ -75,13 +71,6 @@ class Scene {
     //----------------------------\\
     // TODO: COMPLETE THIS METHOD \\
     //----------------------------\\
-
-    for (int i = 0; i < 7; i++) {
-      for (int j = 0; i < 5; i++) {
-        room[i][j] = null;
-      }
-    }
-
   }
 
   /**
@@ -93,7 +82,7 @@ class Scene {
    */
 
   private void updateActions(Actor actor) {
-    for (Action action : Action.values()) {
+    for (Action action: Action.values()) {
       actor.setActionValidity(action, this.isActionValid(actor, action));
     }
   }
@@ -119,7 +108,6 @@ class Scene {
     // Get the player's action
     Action action = this.player.getAction();
 
-    // If no action was chosen, do nothing
     if (action == null) {
       return false;
     }
@@ -317,11 +305,12 @@ class Scene {
     if (this.player != null) {
       this.player.keyPressed();
     }
-    if (enemies.size()>0)
+    if(enemies.size()>0)
     {
-      for (int i=0; i<enemies.size(); i++)
+      for(int i=0; i<enemies.size();i++)
       {
         enemies.get(i).keyPressed();
+        
       }
     }
     tryTurn();
@@ -355,68 +344,52 @@ class Scene {
     //----------------------------\\
     // TODO: COMPLETE THIS METHOD \\
     //----------------------------\\
-
-    g.draw();
-
-    for (int i = 0; i < roomWidth; i++)
+    
+    //drawing the grid
+    pushStyle();
+    color(255);
+    for(int i = 0; i < roomWidth; i++) {
+       line((width/roomWidth)*i, 0, (width/roomWidth)*i, height);
+    }
+     for(int i = 0; i < roomHeight; i++) {
+       line(0, (height/roomHeight)*i, width, (height/roomHeight)*i);
+    }
+    popStyle();
+    for(int i = 0; i < roomWidth; i++) 
     {
-      for (int j=0; j<roomHeight; j++)
+      for(int j=0; j<roomHeight; j++)
       {
-        pushMatrix();
-        translate((width/roomWidth)*(i+.5), (height/roomHeight)*(j+.5));
-        if (room[i][j] instanceof Player||room[i][j] instanceof Obstacle||room[i][j] instanceof Enemy) room[i][j].draw();
-
-        /*
-          This is the code that sets the validity for movements. Any valid actions will cause a null pointer exception currently due to the game trying to save without any doors existing.
-        
-        if (room[i][j] instanceof Player||room[i][j] instanceof Enemy) {
-          if ( j - 1 < 0 ||room[i][j-1] instanceof Obstacle) {
-            player.setActionValidity(Action.MOVE_NORTH, false);
-          } else {
-            player.setActionValidity(Action.MOVE_NORTH, true);
-          }
-          if ( i - 1 < 0 || room[i-1][j] instanceof Obstacle) {
-            player.setActionValidity(Action.MOVE_WEST, false);
-          } else {
-            player.setActionValidity(Action.MOVE_WEST, true);
-          }
-          if ( j + 1 > roomHeight-1 ||room[i][j+1] instanceof Obstacle) {
-            player.setActionValidity(Action.MOVE_SOUTH, false);
-          } else {
-            player.setActionValidity(Action.MOVE_SOUTH, true);
-          }
-          if ( i + 1 > roomWidth-1 ||room[i+1][j] instanceof Obstacle) {
-            player.setActionValidity(Action.MOVE_EAST, false);
-          } else {
-            player.setActionValidity(Action.MOVE_EAST, true);
-          }
-          */
-          popMatrix();
-        }
-      }
+         pushMatrix();
+         translate((width/roomWidth)*(i+.5), (height/roomHeight)*(j+.5));
+         if(room[i][j] instanceof Player||room[i][j] instanceof Obstacle||room[i][j] instanceof Enemy) room[i][j].draw();
+         popMatrix();
+      }   
+    }
+     for(int i = 0; i < roomHeight; i++) {
+       line(0, (height/roomHeight)*i, width, (height/roomHeight)*i);
+    }
   }
-
-
-
+  
 /**public JSONObject serialize()
- {
- JSONObject data=new JSONObject();
- data.setInt ("width", roomWidth);
- data.setInt("height", roomHeight);
- for(int i=0; i<roomHeight; i++)
- {
- for(int j=0; j<roomWidth; j++)
- {
- String name;
- name="object ["+j+"]["+i+"]";
- data.setJSONObject(name, (room[j][i]).serialize());
- }
- }
- 
- return data;
- }*/
-JSONObject serialize() {
-  JSONObject x=new JSONObject();
-  return x;
-}
+  {
+     JSONObject data=new JSONObject();
+     data.setInt ("width", roomWidth);
+     data.setInt("height", roomHeight);
+     for(int i=0; i<roomHeight; i++)
+     {
+       for(int j=0; j<roomWidth; j++)
+       {
+           String name;
+           name="object ["+j+"]["+i+"]";
+           data.setJSONObject(name, (room[j][i]).serialize());
+       }        
+     }
+     
+     return data;
+  }*/
+  JSONObject serialize()
+  {
+    JSONObject x=new JSONObject();
+    return x;
+  }
 }
