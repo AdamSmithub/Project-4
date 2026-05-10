@@ -47,7 +47,7 @@ void setup() {
  */
 
 void draw() {
-  background(0);
+  background(100);
 
   if (scene.tryTurn()) {
     // Save the state of the scene

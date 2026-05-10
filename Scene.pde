@@ -1,5 +1,5 @@
 /**TODO:DEFAULT CONSTRUCTOR, JSONOBJECT CONSTRUCTOR, SERIALIZE, RESET METHOD(GENERATES NEW ROOMS), DRAW METHOD
- *      Author: Prof. Morales, Adam Smith
+ *      Author: Prof. Morales
  *      Course: CPSC 220
  *  Instructor: Prof. Morales
  *     Created: 2026-04-15
@@ -10,66 +10,56 @@
  *              and all objects within those rooms,
  *              including the player and enemies
  */
-import java.util.ArrayList;
+
 import java.util.LinkedList;
+
 class Scene {
   private int roomWidth;
   private int roomHeight;
   private WorldObject[][] room;
   private Direction entry;
-  private Player player;
-  private LinkedList<Actor> enemies;
+  private LinkedList<Enemy> enemies;
   private HashMap<WorldObject, Position> positions;
   private HashMap<Direction, Position> doors;
-  Scene(JSONObject data)
-  {
-    roomWidth=data.getInt("width");
+  Player player=new Player(Direction.NORTH);
+  public Scene() {
+    enemies=new LinkedList<Enemy>();
+    roomWidth = 7;
+    roomHeight = 5;
+    room=new WorldObject[roomWidth][roomHeight];
+    reset(Direction.NORTH);
+    room[6][0]=player;
+    enemies.add(new Enemy(Direction.NORTH, room, new Position(6, 2, this)));
+    room[6][2]=enemies.get(0);
   }
-  Scene(Direction direction, PVector size)
-  {
-    entry=direction;
-    roomWidth=(int) size.x;
-    roomHeight=(int) size.y;
-  }  /**
-   *      Method: private reset()
-   *  Parameters: Direction entry - The direction from which
-   *                                the player entered the room
-   *      Return: void
-   * Description: Resets the room to a random state
-   */
-/**
-CAUSES NULL POINTER UNTIL ROOM GENERATION IMPLEMENTED. DO NOT DELETE
-JSONObject serialize()
-  {
-     JSONObject data=new JSONObject();
-     data.setInt ("width", roomWidth);
-     data.setInt("height", roomHeight);
+  
+  public Scene(JSONObject data) {
+     roomWidth=data.getInt ("width");
+     roomHeight=data.getInt("height");
      for(int i=0; i<roomHeight; i++)
      {
        for(int j=0; j<roomWidth; j++)
        {
            String name;
            name="object ["+j+"]["+i+"]";
-           data.setJSONObject(name, ((Obstacle) room[j][i]).serialize());
+          //cant figure out how to unserialize
+          //room[j][i]=new WorldObject(data.getJSONObject(name));
        }        
      }
-     
-     return data;
   }
-  */
-  //dummy serialize while real function  incomplete
-  JSONObject serialize()
-  {
-     JSONObject data=new JSONObject();
-     return data;
-  }
-ArrayList <ArrayList <Position>> spaces;
-  private void reset(Direction entry, PVector size) {
-    
-    room=new WorldObject[(int) size.x][(int) size.y];
+
+  
+  /**
+   *      Method: private reset()
+   *  Parameters: Direction entry - The direction from which
+   *                                the player entered the room
+   *      Return: void
+   * Description: Resets the room to a random state
+   */
+
+  private void reset(Direction entry) {
     if (entry == null) {
       return;
-      
     }
 
     //----------------------------\\
@@ -106,7 +96,7 @@ ArrayList <ArrayList <Position>> spaces;
       Direction[] directions = Direction.values();
       Direction direction = directions[int(random(directions.length))];
       this.player = new Player(direction);
-      this.reset(direction, size);
+      this.reset(direction);
     }
 
     // Get the player's action
@@ -145,7 +135,7 @@ ArrayList <ArrayList <Position>> spaces;
           Direction[] directions = Direction.values();
           Direction direction = directions[int(random(directions.length))];
           this.player = new Player(direction);
-          this.reset(direction, size); 
+          this.reset(direction);
           return true;
         }
 
@@ -186,7 +176,7 @@ ArrayList <ArrayList <Position>> spaces;
       Position door = this.doors.get(action.direction);
 
       if (door != null && door.equals(position)) {
-        this.reset(action.direction, size);
+        this.reset(action.direction);
         return true;
       }
     }
@@ -310,6 +300,15 @@ ArrayList <ArrayList <Position>> spaces;
     if (this.player != null) {
       this.player.keyPressed();
     }
+    if(enemies.size()>0)
+    {
+      for(int i=0; i<enemies.size();i++)
+      {
+        enemies.get(i).keyPressed();
+        
+      }
+    }
+    tryTurn();
   }
 
   /**
@@ -333,11 +332,59 @@ ArrayList <ArrayList <Position>> spaces;
    */
 
   public void draw() {
+
     // Determine the floor size
     float size = min((float)width / (this.roomWidth + 2), (float)height / (this.roomHeight + 2));
 
     //----------------------------\\
     // TODO: COMPLETE THIS METHOD \\
     //----------------------------\\
+    
+    //drawing the grid
+    pushStyle();
+    color(255);
+    for(int i = 0; i < roomWidth; i++) {
+       line((width/roomWidth)*i, 0, (width/roomWidth)*i, height);
+    }
+     for(int i = 0; i < roomHeight; i++) {
+       line(0, (height/roomHeight)*i, width, (height/roomHeight)*i);
+    }
+    popStyle();
+    for(int i = 0; i < roomWidth; i++) 
+    {
+      for(int j=0; j<roomHeight; j++)
+      {
+         pushMatrix();
+         translate((width/roomWidth)*(i+.5), (height/roomHeight)*(j+.5));
+         if(room[i][j] instanceof Player||room[i][j] instanceof Obstacle||room[i][j] instanceof Enemy) room[i][j].draw();
+         popMatrix();
+      }   
+    }
+     for(int i = 0; i < roomHeight; i++) {
+       line(0, (height/roomHeight)*i, width, (height/roomHeight)*i);
+    }
+  }
+  
+/**public JSONObject serialize()
+  {
+     JSONObject data=new JSONObject();
+     data.setInt ("width", roomWidth);
+     data.setInt("height", roomHeight);
+     for(int i=0; i<roomHeight; i++)
+     {
+       for(int j=0; j<roomWidth; j++)
+       {
+           String name;
+           name="object ["+j+"]["+i+"]";
+           data.setJSONObject(name, (room[j][i]).serialize());
+       }        
+     }
+     
+     return data;
+  }*/
+  JSONObject serialize()
+  {
+    JSONObject x=new JSONObject();
+    return x;
   }
 }

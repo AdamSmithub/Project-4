@@ -9,6 +9,8 @@
  * Description: A user-controlled player actor
  */
 
+
+
 class Player extends Actor {
   private char nextKey;
   private HashMap<Character, Boolean> debounce;
@@ -141,5 +143,36 @@ class Player extends Actor {
     if (debounce.getOrDefault(released, false)) {
       debounce.put(released, false);
     }
+  }
+
+  void draw() {
+    pushStyle();
+    fill(0, 200, 0);
+    ellipse(0, 0, 50, 50);
+    popStyle();
+    
+    /*
+    
+    I've planned for this to draw a line to show which direction you're facing. Doesn't work yet.
+    
+    switch(this.facing) {
+      case NORTH:
+        line(0, 0, 0, -100);
+        break;
+  
+      case EAST:
+        line(0, 0, 100, 0);
+        break;
+  
+      case SOUTH:
+        line(0, 0, 0, 100);
+        break;
+  
+      case WEST:
+        line(0, 0, -100, 0);
+        break;   
+    }
+    */
+    
   }
 }
