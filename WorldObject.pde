@@ -9,6 +9,8 @@
  * Description: Base class for all objects that can exist in a scene
  */
 
+
+
 abstract class WorldObject {
   /**
    *      Method: public serialize()
